@@ -93,7 +93,7 @@ function TerminalCore() {
       <PricingStrip />
 
       <Card>
-        <CardContent className="grid gap-2 p-3 md:grid-cols-4">
+        <CardContent className="grid gap-2 p-3 md:grid-cols-5">
           <Link href="/stocks" className="rounded-md border border-white/10 bg-white/[0.03] p-2 text-xs text-slate-200 hover:bg-white/[0.07]">
             /stocks • portfolio + search
           </Link>
@@ -102,6 +102,12 @@ function TerminalCore() {
           </Link>
           <Link href="/transport" className="rounded-md border border-white/10 bg-white/[0.03] p-2 text-xs text-slate-200 hover:bg-white/[0.07]">
             /transport • live streams
+          </Link>
+          <Link href="/contact" className="rounded-md border border-white/10 bg-white/[0.03] p-2 text-xs text-slate-200 hover:bg-white/[0.07]">
+            /contact • pro support
+          </Link>
+          <Link href="/admin/streams" className="rounded-md border border-white/10 bg-white/[0.03] p-2 text-xs text-slate-200 hover:bg-white/[0.07]">
+            /admin/streams • debug
           </Link>
           <div className="rounded-md border border-white/10 bg-white/[0.03] p-2 text-xs text-slate-200">
             Finnhub + TradingView + Speech + Globe

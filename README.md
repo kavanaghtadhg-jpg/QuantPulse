@@ -1,16 +1,35 @@
-# QuantPulse v4
+# QuantPulse v5.20 Ultimate
 
-QuantPulse v4 is a Bloomberg-inspired terminal clone built with **Next.js 15 App Router**, **TypeScript**, **Tailwind CSS**, **shadcn-style UI**, **Stripe**, **Supabase**, and **Vercel** workflows.
+QuantPulse v5.20 Ultimate is a production-grade retail terminal with Pro paywall features, realtime globe/transport feeds, and support workflows.
 
-## Highlights
+## Core Features
 
-- Sleek terminal UI with charcoal theme (`#020617`) and emerald/red accents
-- Resizable three-pane desktop layout (`react-split`) + mobile-first fallbacks
-- Free tier: multi-asset charts, TA overlays (RSI, MACD, Bollinger, Fib), macro calendar, RSS news
-- Pro tier: Elliott Wave detector, 13 proprietary signals, AI chat endpoint, Monaco alert editor
-- Viral growth: embeddable widgets + share links
-- Monetization scaffolding: Stripe checkout (`$25/year Pro`) + referral tracking (Supabase)
-- SEO + PWA support (`manifest`, `robots`, `sitemap`)
+- Live market dashboard with AI signal overlays
+- 8 embedded TradingView charts
+- Voice search support
+- Pro-gated `/stocks`, `/globe`, `/transport`, `/contact`, `/admin/streams`
+- Bottom-right non-blocking upgrade popup with dismiss/X + localStorage
+
+## Realtime Intelligence
+
+- `/globe`: interactive 3D globe with toggles
+  - ships, planes, weather, whales, sentiment, econ, forex, options, quakes, news
+- `/transport`: event board + stream telemetry
+- Websocket stream manager with reconnect/backoff for:
+  - AIS ships (`wss://stream.aisstream.io/v0/stream`)
+  - Whale alerts (`wss://leviathan.whale-alert.io/ws`)
+
+## Contact (EmailJS)
+
+- `/contact` Pro support form via EmailJS
+- Recipient configured to `quantpulse@proton.me`
+
+## Admin Stream Console
+
+- `/admin/streams` includes:
+  - live message counters
+  - reconnect trigger
+  - test event injection for ships/whales
 
 ## Quick Start
 
@@ -20,41 +39,26 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+## Deploy
 
-## Environment Variables
-
-See `.env.example` for required values:
-
-- `COMMODITY_KEY`
-- `PERPLEXITY_API_KEY`
-- `STRIPE_SECRET_KEY`, `STRIPE_PRO_PRICE_ID`
-- `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-
-## API Routes
-
-- `GET /api/market?symbol=PAU0|CL1!|ETH-USD|SPY`
-- `GET /api/news`
-- `GET /api/calendar`
-- `GET /api/signals?symbol=PAU0`
-- `POST /api/stripe/checkout`
-- `POST /api/ai`
-- `POST /api/referrals`
-- `POST /api/alerts`
-
-## Embed Widgets
-
-```html
-<iframe src="https://quantpulse.vercel.app/widget/PAU0" width="420" height="280"></iframe>
+### Vercel
+```bash
+npm run deploy:vercel
 ```
 
-## Deploy to Vercel
+### GitHub Pages prep
+```bash
+npm run deploy:gh-pages
+```
+
+GitHub Pages publishes a branded redirect shell and `CNAME` for custom domain prep, while realtime features continue on Vercel.
+
+## Anonymous team metadata
 
 ```bash
-chmod +x scripts/deploy-vercel.sh
-./scripts/deploy-vercel.sh
+npm run anonymize
 ```
 
-## Product Hunt Launch
+## Notes
 
-See `docs/PRODUCT_HUNT_LAUNCH_GUIDE.md`.
+Dynamic API routes and websockets run best on Vercel/Node runtime. GitHub Pages deployment is prepared for static export workflows.

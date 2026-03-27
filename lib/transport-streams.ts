@@ -95,6 +95,35 @@ class RealtimeStream {
     };
   }
 
+  stop() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
+    if (this.ws) {
+      try {
+        this.ws.close();
+      } catch {
+        // ignore
+      }
+      this.ws = null;
+    }
+    this.state.connected = false;
+    this.state.fallback = true;
+  }
+
+  resetBackoffAndReconnect() {
+    this.reconnectDelay = 1500;
+    this.stop();
+    this.start();
+  }
+
+  inject(event: GlobeEvent) {
+    pushBounded(this.events, event, MAX_EVENTS);
+    this.state.messages += 1;
+    this.state.lastMessageAt = new Date().toISOString();
+  }
+
   private open() {
     try {
       const socket = new WebSocket(this.connectUrl);
@@ -277,4 +306,20 @@ export function getRealtimeTransportLayers() {
     ships: shipsStream.snapshot(),
     whales: whalesStream.snapshot(),
   };
+}
+
+
+export function adminReconnectStreams() {
+  ensureStarted();
+  shipsStream.resetBackoffAndReconnect();
+  whalesStream.resetBackoffAndReconnect();
+}
+
+export function adminInjectStreamEvent(event: GlobeEvent) {
+  ensureStarted();
+  if (event.layer === "ships") {
+    shipsStream.inject(event);
+  } else if (event.layer === "whales") {
+    whalesStream.inject(event);
+  }
 }

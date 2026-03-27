@@ -1,3 +1,4 @@
+import { StreamConsole } from "@/components/admin/stream-console";
 import { ProGate } from "@/components/pro-gate";
 import { TransportBoard } from "@/components/transport/transport-board";
 
@@ -9,7 +10,10 @@ export default function TransportPage() {
         title="/transport is Pro"
         subtitle="Ships, planes, weather, whales and cross-asset transport intelligence are Pro-only."
       >
-        <TransportBoard />
+        <div className="space-y-3">
+          <StreamConsole />
+          <TransportBoard />
+        </div>
       </ProGate>
     </main>
   );
