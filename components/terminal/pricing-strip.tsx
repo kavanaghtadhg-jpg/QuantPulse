@@ -4,9 +4,10 @@ import { ArrowRight, Gem } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tier } from "@/lib/types";
+import { useTier } from "@/lib/tier";
 
-export function PricingStrip({ tier }: { tier: Tier }) {
+export function PricingStrip() {
+  const { tier } = useTier();
   const goCheckout = async () => {
     const res = await fetch("/api/stripe/checkout", { method: "POST" });
     const data = await res.json();

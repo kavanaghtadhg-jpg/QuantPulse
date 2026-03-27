@@ -55,3 +55,15 @@ export async function fetchTextWithTimeout(
     return null;
   }
 }
+
+
+export async function fetchJsonWithTimeout<T>(
+  url: string,
+  options: FetchWithTimeoutOptions = {},
+): Promise<T> {
+  const res = await fetchWithTimeout(url, options);
+  if (!res.ok) {
+    throw new Error(`Request failed (${res.status}) for ${url}`);
+  }
+  return (await res.json()) as T;
+}

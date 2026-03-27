@@ -1,10 +1,17 @@
 "use client";
 
+import { SpeechProvider } from "@speechly/react-client";
 import { motion } from "framer-motion";
-import { LineChart, Rocket } from "lucide-react";
+import { Globe2, LineChart, Rocket, Waves } from "lucide-react";
+import Link from "next/link";
 import Split from "react-split";
 import { useEffect, useMemo, useState } from "react";
 
+import { AiSignalStrip } from "@/components/dashboard/ai-signal-strip";
+import { LiveStocksTable } from "@/components/dashboard/live-stocks-table";
+import { SyncedTradingViews } from "@/components/dashboard/synced-tradingviews";
+import { VoiceSearch } from "@/components/dashboard/voice-search";
+import { UpgradePopup } from "@/components/upgrade-popup";
 import { ChartPanel } from "@/components/terminal/chart-panel";
 import { NewsTicker } from "@/components/terminal/news-ticker";
 import { PricingStrip } from "@/components/terminal/pricing-strip";
@@ -16,12 +23,16 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ProGate } from "@/components/pro-gate";
 import { DEFAULT_SYMBOL } from "@/lib/constants";
+import { useTier } from "@/lib/tier";
 import { computeTa, detectElliottWave } from "@/lib/ta";
-import { AssetQuote, MarketSymbol, Tier } from "@/lib/types";
+import { AssetQuote, MarketSymbol } from "@/lib/types";
 
-export function TerminalShell() {
-  const [tier, setTier] = useState<Tier>("free");
+const SPEECHLY_APP_ID = process.env.NEXT_PUBLIC_SPEECHLY_APP_ID || "app-id.undefined";
+
+function TerminalCore() {
+  const { tier, setTier } = useTier();
   const [symbol, setSymbol] = useState<MarketSymbol>(DEFAULT_SYMBOL);
   const [quotes, setQuotes] = useState<Record<string, AssetQuote>>({});
 
@@ -62,24 +73,50 @@ export function TerminalShell() {
             <LineChart className="size-5" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-slate-100">QuantPulse v4 Terminal</h1>
-            <p className="text-xs text-slate-400">Bloomberg power, retail price, cloud-native.</p>
+            <h1 className="text-lg font-semibold text-slate-100">QuantPulse v5.20 Ultimate</h1>
+            <p className="text-xs text-slate-400">All-in-one retail terminal: stocks, globe, transport, AI.</p>
           </div>
           <Badge variant="success">LIVE</Badge>
         </div>
 
         <div className="flex items-center gap-2">
-          <TierSwitcher tier={tier} onTier={setTier} />
+          <TierSwitcher />
           <ThemeToggle />
           <Button variant="outline" size="sm" onClick={() => setTier("pro")}>
             <Rocket className="size-4" />
-            Unlock Pro
+            Upgrade Pro $25
           </Button>
         </div>
       </motion.header>
 
       <NewsTicker />
-      <PricingStrip tier={tier} />
+      <PricingStrip />
+
+      <Card>
+        <CardContent className="grid gap-2 p-3 md:grid-cols-4">
+          <Link href="/stocks" className="rounded-md border border-white/10 bg-white/[0.03] p-2 text-xs text-slate-200 hover:bg-white/[0.07]">
+            /stocks • portfolio + search
+          </Link>
+          <Link href="/globe" className="rounded-md border border-white/10 bg-white/[0.03] p-2 text-xs text-slate-200 hover:bg-white/[0.07]">
+            /globe • global overlays
+          </Link>
+          <Link href="/transport" className="rounded-md border border-white/10 bg-white/[0.03] p-2 text-xs text-slate-200 hover:bg-white/[0.07]">
+            /transport • live streams
+          </Link>
+          <div className="rounded-md border border-white/10 bg-white/[0.03] p-2 text-xs text-slate-200">
+            Finnhub + TradingView + Speech + Globe
+          </div>
+        </CardContent>
+      </Card>
+
+      <ProGate title="Pro dashboard modules" subtitle="Stocks scanner, synced 8 charts, and voice workflows are Pro-only.">
+        <div className="space-y-3">
+          <VoiceSearch onSearch={(value) => console.debug("voice", value)} />
+          <AiSignalStrip />
+          <LiveStocksTable />
+          <SyncedTradingViews />
+        </div>
+      </ProGate>
 
       <div className="hidden h-[calc(100vh-270px)] min-h-[640px] lg:block">
         <Split
@@ -103,9 +140,16 @@ export function TerminalShell() {
           <div className="space-y-3">
             <ChartPanel quote={activeQuote} ta={ta} />
             <WidgetShareCard symbol={symbol} />
+            <Card>
+              <CardContent className="flex gap-2 p-3 text-xs text-slate-300">
+                <Globe2 className="size-4 text-emerald-300" />
+                <Waves className="size-4 text-cyan-300" />
+                Toggle live overlays in /globe and /transport.
+              </CardContent>
+            </Card>
           </div>
 
-          <RightRail tier={tier} symbol={symbol} wave={wave} />
+          <RightRail symbol={symbol} wave={wave} />
         </Split>
       </div>
 
@@ -121,7 +165,7 @@ export function TerminalShell() {
           onSelect={setSymbol}
         />
         <ChartPanel quote={activeQuote} ta={ta} />
-        <RightRail tier={tier} symbol={symbol} wave={wave} />
+        <RightRail symbol={symbol} wave={wave} />
         <WidgetShareCard symbol={symbol} />
       </div>
 
@@ -137,10 +181,24 @@ export function TerminalShell() {
           </div>
           <div className="rounded-md border border-white/10 bg-white/[0.03] p-2 text-xs text-slate-300">
             <p className="font-semibold text-slate-100">PWA Ready</p>
-            <p>Install QuantPulse on desktop/mobile for app-like trading workflows.</p>
+            <p>Install QuantPulse on desktop/mobile for app-like workflows.</p>
           </div>
         </CardContent>
       </Card>
+
+      <UpgradePopup />
     </div>
+  );
+}
+
+export function TerminalShell() {
+  if (!SPEECHLY_APP_ID) {
+    return <TerminalCore />;
+  }
+
+  return (
+    <SpeechProvider appId={SPEECHLY_APP_ID}>
+      <TerminalCore />
+    </SpeechProvider>
   );
 }

@@ -35,6 +35,14 @@ body {
   color: var(--foreground);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .gyro-globe {
+      transform-style: preserve-3d;
+    }
+  }
+}
+
 .glass-card {
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: linear-gradient(140deg, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.35));

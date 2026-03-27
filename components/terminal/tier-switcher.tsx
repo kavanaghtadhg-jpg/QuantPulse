@@ -9,15 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Tier } from "@/lib/types";
+import { useTier } from "@/lib/tier";
 
-export function TierSwitcher({
-  tier,
-  onTier,
-}: {
-  tier: Tier;
-  onTier: (tier: Tier) => void;
-}) {
+export function TierSwitcher() {
+  const { tier, setTier } = useTier();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -27,9 +22,9 @@ export function TierSwitcher({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => onTier("free")}>Free Tier</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onTier("pro")}>Pro ($25/yr)</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onTier("enterprise")}>
+        <DropdownMenuItem onClick={() => setTier("free")}>Free Tier</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTier("pro")}>Pro ($25/yr)</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTier("enterprise")}>
           <Crown className="mr-2 size-4" />
           Enterprise ($99/mo)
         </DropdownMenuItem>

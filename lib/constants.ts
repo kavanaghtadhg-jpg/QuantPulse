@@ -1,6 +1,6 @@
 import { MarketSymbol } from "@/lib/types";
 
-export const APP_NAME = "QuantPulse v4";
+export const APP_NAME = "QuantPulse v5.20 Ultimate";
 export const APP_DESCRIPTION =
   "Ultimate zero-cost Bloomberg-style terminal for macro, commodities, crypto and equities.";
 

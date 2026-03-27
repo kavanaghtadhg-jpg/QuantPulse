@@ -17,17 +17,17 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { EconEvent, MarketSymbol, NewsItem, Signal, Tier, WaveSignal } from "@/lib/types";
+import { EconEvent, MarketSymbol, NewsItem, Signal, WaveSignal } from "@/lib/types";
+import { useTier } from "@/lib/tier";
 
 export function RightRail({
-  tier,
   symbol,
   wave,
 }: {
-  tier: Tier;
   symbol: MarketSymbol;
   wave: WaveSignal | null;
 }) {
+  const { tier } = useTier();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [calendar, setCalendar] = useState<EconEvent[]>([]);
   const [signals, setSignals] = useState<Signal[]>([]);
