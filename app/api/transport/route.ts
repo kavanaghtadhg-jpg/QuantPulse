@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { getTransportIntel } from "@/lib/transport";
+import { getTransportSnapshot } from "@/lib/transport";
 
 export async function GET() {
-  const layers = await getTransportIntel();
-  return NextResponse.json({ layers });
+  const snapshot = await getTransportSnapshot();
+  return NextResponse.json(snapshot, {
+    headers: {
+      "Cache-Control": "no-store",
+    },
+  });
 }

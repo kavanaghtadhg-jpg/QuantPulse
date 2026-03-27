@@ -22,6 +22,21 @@ export type GlobeEvent = {
   meta?: Record<string, string | number>;
 };
 
+export type TransportLayerState = {
+  connected: boolean;
+  source: string;
+  fallback: boolean;
+  messages: number;
+  reconnects: number;
+  lastMessageAt: string | null;
+  lastError: string | null;
+};
+
+export type TransportSnapshot = {
+  layers: Record<GlobeLayer, GlobeEvent[]>;
+  states: Partial<Record<GlobeLayer, TransportLayerState>>;
+};
+
 const AIRLABS_KEY = process.env.AIRLABS_KEY || "demo";
 const OPEN_WEATHER_KEY = process.env.OPENWEATHER_KEY || "demo";
 
@@ -145,18 +160,39 @@ function staticLayer(layer: GlobeLayer, label: string, count = 8): GlobeEvent[] 
 }
 
 export async function getTransportIntel(): Promise<Record<GlobeLayer, GlobeEvent[]>> {
+  const snapshot = await getTransportSnapshot();
+  return snapshot.layers;
+}
+
+export async function getTransportSnapshot(): Promise<TransportSnapshot> {
   const [quakes, planes, weather] = await Promise.all([quakeEvents(), planeEvents(), weatherEvents()]);
 
+  const { getRealtimeTransportLayers } = await import("@/lib/transport-streams");
+  const realtime = getRealtimeTransportLayers();
+
+  const ships = realtime.ships.events.length
+    ? realtime.ships.events
+    : staticLayer("ships", "AIS vessel");
+  const whales = realtime.whales.events.length
+    ? realtime.whales.events
+    : staticLayer("whales", "Whale transfer");
+
   return {
-    quakes,
-    planes,
-    weather,
-    ships: staticLayer("ships", "AIS vessel"),
-    whales: staticLayer("whales", "Whale transfer"),
-    sentiment: staticLayer("sentiment", "Social sentiment pulse"),
-    econ: staticLayer("econ", "Macro release"),
-    forex: staticLayer("forex", "FX volatility cluster"),
-    options: staticLayer("options", "Options flow burst"),
-    news: staticLayer("news", "Breaking headline"),
+    layers: {
+      quakes,
+      planes,
+      weather,
+      ships,
+      whales,
+      sentiment: staticLayer("sentiment", "Social sentiment pulse"),
+      econ: staticLayer("econ", "Macro release"),
+      forex: staticLayer("forex", "FX volatility cluster"),
+      options: staticLayer("options", "Options flow burst"),
+      news: staticLayer("news", "Breaking headline"),
+    },
+    states: {
+      ships: realtime.ships.state,
+      whales: realtime.whales.state,
+    },
   };
 }
