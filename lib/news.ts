@@ -1,6 +1,7 @@
 import Parser from "rss-parser";
 
 import { NewsItem } from "@/lib/types";
+import { fetchWithTimeout } from "@/lib/http";
 
 const parser = new Parser();
 
@@ -15,7 +16,21 @@ export async function getRssNews(): Promise<NewsItem[]> {
 
   for (const feed of DEFAULT_FEEDS) {
     try {
-      const res = await parser.parseURL(feed);
+      const xmlResponse = await fetchWithTimeout(feed, {
+        timeoutMs: 4500,
+        next: { revalidate: 180 },
+        headers: {
+          "User-Agent": "QuantPulse/1.0 (+https://quantpulse.vercel.app)",
+          Accept: "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8, */*;q=0.1",
+        },
+      });
+
+      if (!xmlResponse.ok) {
+        continue;
+      }
+
+      const xml = await xmlResponse.text();
+      const res = await parser.parseString(xml);
       for (const entry of res.items.slice(0, 8)) {
         if (!entry.title || !entry.link) {
           continue;

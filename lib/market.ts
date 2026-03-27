@@ -1,7 +1,8 @@
 import { addMinutes, subDays } from "date-fns";
 
 import { SYMBOL_META } from "@/lib/constants";
-import { AssetQuote, Candle, MarketSymbol } from "@/lib/types";
+import { fetchWithTimeout } from "@/lib/http";
+import { AssetQuote, Candle, MarketDataProvider, MarketSymbol } from "@/lib/types";
 import { safeNumber } from "@/lib/utils";
 
 function buildSyntheticCandles(base: number): Candle[] {
@@ -41,7 +42,10 @@ async function fetchYahooChart(symbol: MarketSymbol): Promise<Candle[] | null> {
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(
       yahoo,
     )}?interval=30m&range=5d`;
-    const res = await fetch(url, { next: { revalidate: 120 } });
+    const res = await fetchWithTimeout(url, {
+      next: { revalidate: 120 },
+      timeoutMs: 4000,
+    });
     if (!res.ok) {
       return null;
     }
@@ -98,7 +102,10 @@ async function fetchCommoditySnapshot(symbol: MarketSymbol): Promise<number | nu
     const url = `https://api.commoditypriceapi.com/v1/latest?api_key=${encodeURIComponent(
       key,
     )}&base=${encodeURIComponent(commodityCode)}&currencies=USD`;
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetchWithTimeout(url, {
+      cache: "no-store",
+      timeoutMs: 4500,
+    });
     if (!res.ok) {
       return null;
     }
@@ -114,8 +121,18 @@ async function fetchCommoditySnapshot(symbol: MarketSymbol): Promise<number | nu
 }
 
 export async function getAssetQuote(symbol: MarketSymbol): Promise<AssetQuote> {
+  const warnings: string[] = [];
+  let provider: MarketDataProvider = "synthetic";
+
+  const yahooCandles = await fetchYahooChart(symbol);
+  if (yahooCandles) {
+    provider = "yahoo";
+  } else {
+    warnings.push("Yahoo data unavailable; using synthetic candles");
+  }
+
   const candles =
-    (await fetchYahooChart(symbol)) ??
+    yahooCandles ??
     buildSyntheticCandles(
       symbol === "PAU0" ? 998 : symbol === "CL1!" ? 79 : symbol === "ETH-USD" ? 3250 : 522,
     );
@@ -123,6 +140,12 @@ export async function getAssetQuote(symbol: MarketSymbol): Promise<AssetQuote> {
   const last = candles.at(-1)?.close ?? 0;
   const prev = candles.at(-2)?.close ?? last;
   const commodityOverride = await fetchCommoditySnapshot(symbol);
+  if (commodityOverride !== null) {
+    provider = "commoditypriceapi+yahoo";
+    if (!yahooCandles) {
+      warnings.push("Commodity snapshot available but chart candles are synthetic");
+    }
+  }
   const price = commodityOverride ?? last;
   const change = price - prev;
 
@@ -134,5 +157,10 @@ export async function getAssetQuote(symbol: MarketSymbol): Promise<AssetQuote> {
     changePercent: prev ? (change / prev) * 100 : 0,
     currency: "USD",
     candles,
+    meta: {
+      source: provider === "synthetic" ? "fallback" : "live",
+      provider,
+      warnings,
+    },
   };
 }

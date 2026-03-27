@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     quote,
-    source: process.env.COMMODITY_KEY ? "commodity+yahoo" : "yahoo+synthetic",
+    source: quote.meta.source,
+    provider: quote.meta.provider,
+    warnings: quote.meta.warnings,
   });
 }

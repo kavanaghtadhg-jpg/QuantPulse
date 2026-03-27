@@ -1,6 +1,7 @@
 export type Tier = "free" | "pro" | "enterprise";
 
 export type MarketSymbol = "PAU0" | "CL1!" | "ETH-USD" | "SPY";
+export type MarketDataProvider = "commoditypriceapi+yahoo" | "yahoo" | "synthetic";
 
 export type Candle = {
   time: string;
@@ -19,6 +20,11 @@ export type AssetQuote = {
   changePercent: number;
   currency: string;
   candles: Candle[];
+  meta: {
+    source: "live" | "fallback";
+    provider: MarketDataProvider;
+    warnings: string[];
+  };
 };
 
 export type EconEvent = {
