@@ -51,6 +51,15 @@ If remote data fetch fails, the frontend automatically uses a synthetic fallback
 - Accepts payload with `{ profile, hour, weekday, season, movie_row }`
 - Loads `public/model_coefs.json` and returns computed adjusted score
 
+## Preview before going live
+
+```bash
+vercel login
+npm run preview
+```
+
+This creates a Vercel preview deployment URL for review before production.
+
 ## Legal note
 
 MovieLens dataset usage is intended for research/non-commercial experimentation.

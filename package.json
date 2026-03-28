@@ -9,6 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "data": "cd scripts && python3 data_extract.py && python3 process.py && cd ..",
+    "preview": "npx vercel --yes",
     "deploy:vercel": "bash scripts/deploy-vercel.sh",
     "deploy:gh-pages": "bash scripts/deploy-gh-pages.sh",
     "anonymize": "git config --local user.name \"quantpulse-ci\" && git config --local user.email \"quantpulse@proton.me\""
