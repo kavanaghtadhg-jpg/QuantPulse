@@ -6,10 +6,12 @@ import { LiveStocksTable } from "@/components/dashboard/live-stocks-table";
 import { VoiceSearch } from "@/components/dashboard/voice-search";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StockExchange } from "@/lib/stocks";
 
 export function StocksPageClient() {
   const [portfolio, setPortfolio] = useState<string[]>(["AAPL", "MSFT", "SPY", "NVDA"]);
   const [search, setSearch] = useState("");
+  const [exchange, setExchange] = useState<StockExchange>("ALL");
 
   const filtered = useMemo(() => {
     if (!search.trim()) {
@@ -35,6 +37,21 @@ export function StocksPageClient() {
         <CardContent className="space-y-2">
           <VoiceSearch onSearch={setSearch} />
           <div className="flex flex-wrap gap-2">
+            {(["ALL", "NYSE", "NASDAQ", "LSE", "HKEX", "NSE"] as StockExchange[]).map((item) => (
+              <button
+                key={item}
+                onClick={() => setExchange(item)}
+                className={`rounded-md border px-2 py-1 text-xs ${
+                  exchange === item
+                    ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-200"
+                    : "border-white/15 bg-white/5 text-slate-300"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={add}>
               Add Symbol
             </Button>
@@ -50,7 +67,7 @@ export function StocksPageClient() {
           </div>
         </CardContent>
       </Card>
-      <LiveStocksTable symbols={filtered} />
+      <LiveStocksTable symbols={filtered} exchange={exchange} />
     </div>
   );
 }

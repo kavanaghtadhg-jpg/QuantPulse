@@ -1,6 +1,5 @@
 "use client";
 
-import { SpeechProvider } from "@speechly/react-client";
 import { motion } from "framer-motion";
 import { Globe2, LineChart, Rocket, Waves } from "lucide-react";
 import Link from "next/link";
@@ -28,8 +27,6 @@ import { DEFAULT_SYMBOL } from "@/lib/constants";
 import { useTier } from "@/lib/tier";
 import { computeTa, detectElliottWave } from "@/lib/ta";
 import { AssetQuote, MarketSymbol } from "@/lib/types";
-
-const SPEECHLY_APP_ID = process.env.NEXT_PUBLIC_SPEECHLY_APP_ID || "app-id.undefined";
 
 function TerminalCore() {
   const { tier, setTier } = useTier();
@@ -73,7 +70,7 @@ function TerminalCore() {
             <LineChart className="size-5" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-slate-100">QuantPulse v5.20 Ultimate</h1>
+            <h1 className="text-lg font-semibold text-slate-100">QuantPulse v5.21 Ultimate</h1>
             <p className="text-xs text-slate-400">All-in-one retail terminal: stocks, globe, transport, AI.</p>
           </div>
           <Badge variant="success">LIVE</Badge>
@@ -198,13 +195,5 @@ function TerminalCore() {
 }
 
 export function TerminalShell() {
-  if (!SPEECHLY_APP_ID) {
-    return <TerminalCore />;
-  }
-
-  return (
-    <SpeechProvider appId={SPEECHLY_APP_ID}>
-      <TerminalCore />
-    </SpeechProvider>
-  );
+  return <TerminalCore />;
 }
