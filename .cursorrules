@@ -1,0 +1,4 @@
+"use client" is required for PapaParse and localStorage usage.
+Convert NaN values to 0 as early as possible in both data and UI pipelines.
+Static export compatibility is acceptable.
+Always use mirrored dataset URLs for data acquisition fallbacks.

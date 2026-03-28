@@ -1,64 +1,56 @@
-# QuantPulse v5.20 Ultimate
+# TempoRate
 
-QuantPulse v5.20 Ultimate is a production-grade retail terminal with Pro paywall features, realtime globe/transport feeds, and support workflows.
+TempoRate is a full-stack movie rating experience with live personal adjustments based on profile and temporal context.
+The UI follows a matte colorful glassmorphism direction with a mid-dark background, teal/amber accents, asymmetric cards, score rings, and minimal typography.
 
-## Core Features
+## Stack
 
-- Live market dashboard with AI signal overlays
-- 8 embedded TradingView charts
-- Voice search support
-- Pro-gated `/stocks`, `/globe`, `/transport`, `/contact`, `/admin/streams`
-- Bottom-right non-blocking upgrade popup with dismiss/X + localStorage
-
-## Realtime Intelligence
-
-- `/globe`: interactive 3D globe with toggles
-  - ships, planes, weather, whales, sentiment, econ, forex, options, quakes, news
-- `/transport`: event board + stream telemetry
-- Websocket stream manager with reconnect/backoff for:
-  - AIS ships (`wss://stream.aisstream.io/v0/stream`)
-  - Whale alerts (`wss://leviathan.whale-alert.io/ws`)
-
-## Contact (EmailJS)
-
-- `/contact` Pro support form via EmailJS
-- Recipient configured to `quantpulse@proton.me`
-
-## Admin Stream Console
-
-- `/admin/streams` includes:
-  - live message counters
-  - reconnect trigger
-  - test event injection for ships/whales
+- Next.js 15 App Router
+- Tailwind CSS + shadcn/ui primitives
+- Framer Motion transitions
+- PapaParse loaded dynamically on the client
+- Python scripts with pandas + scikit-learn for data generation
 
 ## Quick Start
 
 ```bash
 npm install
-cp .env.example .env.local
+pip3 install -r scripts/requirements.txt
+npm run data
 npm run dev
 ```
 
-## Deploy
+## Data pipeline
 
-### Vercel
-```bash
-npm run deploy:vercel
-```
-
-### GitHub Pages prep
-```bash
-npm run deploy:gh-pages
-```
-
-GitHub Pages publishes a branded redirect shell and `CNAME` for custom domain prep, while realtime features continue on Vercel.
-
-## Anonymous team metadata
+Run:
 
 ```bash
-npm run anonymize
+npm run data
 ```
 
-## Notes
+This executes:
 
-Dynamic API routes and websockets run best on Vercel/Node runtime. GitHub Pages deployment is prepared for static export workflows.
+1. `scripts/data_extract.py`:
+   - Pulls MovieLens `ratings.dat`, `users.dat`, `movies.dat` from mirrored URLs
+   - Uses first successful response with `requests.get(..., timeout=10)`
+   - Saves normalized raw CSVs to `public/raw/`
+
+2. `scripts/process.py`:
+   - Merges ratings/users/movies
+   - Builds temporal + demographic feature set (`hour`, `weekday`, `season`, `age_bucket`, `gender_M`)
+   - Trains a linear regression model and exports coefficients to `public/model_coefs.json`
+   - Creates a genre-sliced top-movie sample CSV at `public/movie_ratings_sample.csv`
+
+If remote data fetch fails, the frontend automatically uses a synthetic fallback dataset embedded in `app/page.tsx`.
+
+## API
+
+`/app/api/adjust/route.ts`
+
+- `GET` and `POST` supported
+- Accepts payload with `{ profile, hour, weekday, season, movie_row }`
+- Loads `public/model_coefs.json` and returns computed adjusted score
+
+## Legal note
+
+MovieLens dataset usage is intended for research/non-commercial experimentation.

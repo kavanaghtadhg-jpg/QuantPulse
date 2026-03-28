@@ -1,0 +1,8 @@
+{
+  "hour": 0.02,
+  "weekday": -0.08,
+  "season": 0.02,
+  "age_bucket": 0.11,
+  "gender_M": -1.04,
+  "intercept": 69.07
+}
