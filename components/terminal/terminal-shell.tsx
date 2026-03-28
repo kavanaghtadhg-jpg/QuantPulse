@@ -114,7 +114,20 @@ function TerminalCore() {
 
       <ProGate title="Pro dashboard modules" subtitle="Stocks scanner, synced 8 charts, and voice workflows are Pro-only.">
         <div className="space-y-3">
-          <VoiceSearch onSearch={(value) => console.debug("voice", value)} />
+          <VoiceSearch
+            onSearch={(value) => {
+              const normalized = value.trim().toUpperCase();
+              if (normalized === "SPY") {
+                setSymbol("SPY");
+              } else if (normalized === "ETH-USD" || normalized === "ETH" || normalized === "ETHUSD") {
+                setSymbol("ETH-USD");
+              } else if (normalized === "CL1!" || normalized === "CL") {
+                setSymbol("CL1!");
+              } else if (normalized === "PAU0" || normalized === "PALLADIUM") {
+                setSymbol("PAU0");
+              }
+            }}
+          />
           <AiSignalStrip />
           <LiveStocksTable />
           <SyncedTradingViews />
